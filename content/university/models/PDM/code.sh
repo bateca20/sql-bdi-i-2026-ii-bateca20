@@ -1,79 +1,134 @@
-// Credit Card Transaction System - dbdiagram Syntax
-// link: https://dbdiagram.io/d/PDM-Fintech-dbdiagram-io-68123c961ca52373f50088ff
+// ============================================
+// ACADEMIC MANAGEMENT SYSTEM - RECONSTRUCTED MODEL
+// Source: Image analysis
+// ============================================
 
-Table fintech.CLIENTS {
-  client_id varchar(50) [pk]
-  first_name varchar(100)
-  middle_name varchar(100)
-  last_name varchar(100)
-  gender varchar(10)
-  birth_date date
-  email varchar(255)
-  phone varchar(50)
-  address varchar(255)
+// ============================================
+// MÓDULO DE USUARIOS Y AUTORIZACIÓN
+// ============================================
+
+Table Roles {
+  rol_id INT [primary key]
+  name VARCHAR(45) [not null]
 }
 
-Table fintech.CREDIT_CARDS {
-  card_id varchar(50) [pk]
-  client_id varchar(50) [ref: > fintech.CLIENTS.client_id]
-  issue_date date
-  expiration_date date
-  status varchar(20)
-  franchise_id varchar(50) [ref: > fintech.FRANCHISES.franchise_id]
+Table Users {
+  user_id INT [primary key]
+  name VARCHAR(45) [not null]
+  last_name VARCHAR(45) [not null]
+  semester INT
+  rol_id INT [not null]
 }
 
-Table fintech.FRANCHISES {
-  franchise_id varchar(50) [pk]
-  name varchar(100)
-  issuer_id varchar(50) [ref: > fintech.ISSUERS.issuer_id]
-  country_code varchar(10) [ref: > fintech.COUNTRIES.country_code]
+// ============================================
+// ESTRUCTURA ACADÉMICA (FACULTADES Y PROGRAMAS)
+// ============================================
+
+Table Faculties {
+  faculty_id INT [primary key]
+  name VARCHAR(45) [not null]
 }
 
-Table fintech.ISSUERS {
-  issuer_id varchar(50) [pk]
-  name varchar(100)
-  bank_code varchar(50)
-  contact_phone varchar(50)
-  international boolean
-  country_code varchar(10) [ref: > fintech.COUNTRIES.country_code]
+Table Programs {
+  program_id INT [primary key]
+  name VARCHAR(45) [not null]
+  faculty_id INT [not null]
 }
 
-Table fintech.COUNTRIES {
-  country_code varchar(10) [pk]
-  name varchar(100)
-  currency varchar(10)
-  region_id varchar(50) [ref: > fintech.REGIONS.region_id]
+// Relación de inscripciones de estudiantes a programas
+Table Programs_studests {
+  program_student_id INT [primary key]
+  program_id INT [not null]
+  user_id INT [not null]
 }
 
-Table fintech.REGIONS {
-  region_id varchar(50) [pk]
-  name varchar(100)
+// ============================================
+// ESTRUCTURA ACADÉMICA (CURSOS Y PLANES)
+// ============================================
+
+Table Courses {
+  course_id INT [primary key]
+  name VARCHAR(45) [not null]
+  faculty_id INT [not null]
 }
 
-Table fintech.TRANSACTIONS {
-  transaction_id varchar(50) [pk]
-  card_id varchar(50) [ref: > fintech.CREDIT_CARDS.card_id]
-  amount decimal(15,2)
-  currency varchar(10)
-  transaction_date timestamp
-  channel varchar(50)
-  status varchar(20)
-  device_type varchar(50)
-  location_id varchar(50) [ref: > fintech.MERCHANT_LOCATIONS.location_id]
-  method_id varchar(50) [ref: > fintech.PAYMENT_METHODS.method_id]
+// Tabla intermedia para el plan de estudios por semestre
+Table Courses_programs {
+  course_program INT [primary key]
+  semester INT
+  course_id INT [not null]
+  program_id INT [not null]
 }
 
-Table fintech.MERCHANT_LOCATIONS {
-  location_id varchar(50) [pk]
-  store_name varchar(100)
-  category varchar(100)
-  city varchar(100)
-  country_code varchar(10) [ref: > fintech.COUNTRIES.country_code]
-  latitude decimal(10,6)
-  longitude decimal(10,6)
+// ============================================
+// PLANIFICACIÓN Y HORARIOS
+// ============================================
+
+Table Schedule {
+  schedule_id INT [primary key]
+  start_time VARCHAR(45)
+  end_time VARCHAR(45)
+  day VARCHAR(45)
 }
 
-Table fintech.PAYMENT_METHODS {
-  method_id varchar(50) [pk]
-  name varchar(100)
+// Oferta académica específica (horario, salón, curso, cupo)
+Table Course_calendar {
+  course_calendar_id INT [primary key]
+  quota INT
+  classroom_id INT [not null]
+  course_id INT [not null]
+  schedule_id INT [not null]
 }
+
+// Registro de estudiantes en cursos específicos ofertados
+Table Courses_students {
+  course_student_id INT [primary key]
+  course_calendar_course_calendar INT [not null]
+  user_id INT [not null]
+}
+
+// ============================================
+// MÓDULO DE INFRAESTRUCTURA
+// ============================================
+
+Table Buildings {
+  building_id INT [primary key]
+  name VARCHAR(45) [not null]
+}
+
+Table Classroms {
+  classroom_id INT [primary key]
+  name VARCHAR(45) [not null]
+  building_id INT [not null]
+}
+
+// ============================================
+// RELACIONES DEFINIDAS EN EL DIAGRAMA (IMAGEN)
+// ============================================
+
+// Relaciones de Usuarios y Roles
+Ref: Users.rol_id > Roles.rol_id
+
+// Relaciones Académicas
+Ref: Programs.faculty_id > Faculties.faculty_id
+Ref: Courses.faculty_id > Faculties.faculty_id
+
+// Relaciones de la tabla intermedia Programs_studests
+Ref: Programs_studests.program_id > Programs.program_id
+Ref: Programs_studests.user_id > Users.user_id
+
+// Relaciones de la tabla intermedia Courses_programs
+Ref: Courses_programs.course_id > Courses.course_id
+Ref: Courses_programs.program_id > Programs.program_id
+
+// Relaciones de Infraestructura
+Ref: Classroms.building_id > Buildings.building_id
+
+// Relaciones de Planificación y Oferta (Course_calendar)
+Ref: Course_calendar.course_id > Courses.course_id
+Ref: Course_calendar.schedule_id > Schedule.schedule_id
+Ref: Course_calendar.classroom_id > Classroms.classroom_id
+
+// Relaciones de Inscripción de Estudiantes a Cursos
+Ref: Courses_students.course_calendar_course_calendar > Course_calendar.course_calendar_id
+Ref: Courses_students.user_id > Users.user_id
