@@ -1,0 +1,108 @@
+erDiagram
+    %% ============================================
+    %% MÓDULO DE USUARIOS Y ROLES
+    %% ============================================
+    ROLES --o{ USERS  assigned_to
+    USERS --o{ PROGRAMS_STUDESTS  enrolls
+    USERS --o{ COURSES_STUDENTS  attends
+
+    ROLES {
+        int rol_id PK
+        varchar name NOT NULL
+    }
+
+    USERS {
+        int user_id PK
+        varchar name NOT NULL
+        varchar last_name NOT NULL
+        int semester
+        int rol_id FK NOT NULL
+    }
+
+    %% ============================================
+    %% MÓDULO ACADÉMICO (FACULTADES Y PROGRAMAS)
+    %% ============================================
+    FACULTIES --o{ PROGRAMS  offers
+    FACULTIES --o{ COURSES  manages
+    PROGRAMS --o{ PROGRAMS_STUDESTS  has
+    PROGRAMS --o{ COURSES_PROGRAMS  includes
+
+    FACULTIES {
+        int faculty_id PK
+        varchar name NOT NULL
+    }
+
+    PROGRAMS {
+        int program_id PK
+        varchar name NOT NULL
+        int faculty_id FK NOT NULL
+    }
+
+    PROGRAMS_STUDESTS {
+        int program_student_id PK
+        int program_id FK NOT NULL
+        int user_id FK NOT NULL
+    }
+
+    %% ============================================
+    %% MÓDULO DE CURSOS Y PLAN DE ESTUDIOS
+    %% ============================================
+    COURSES --o{ COURSES_PROGRAMS  part_of
+    COURSES --o{ COURSE_CALENDAR  scheduled_as
+
+    COURSES {
+        int course_id PK
+        varchar name NOT NULL
+        int faculty_id FK NOT NULL
+    }
+
+    COURSES_PROGRAMS {
+        int course_program_id PK
+        int semester
+        int course_id FK NOT NULL
+        int program_id FK NOT NULL
+    }
+
+    %% ============================================
+    %% MÓDULO DE INFRAESTRUCTURA
+    %% ============================================
+    BUILDINGS --o{ CLASSROMS  contains
+    CLASSROMS --o{ COURSE_CALENDAR  hosts
+
+    BUILDINGS {
+        int building_id PK
+        varchar name NOT NULL
+    }
+
+    CLASSROMS {
+        int classroom_id PK
+        varchar name NOT NULL
+        int building_id FK NOT NULL
+    }
+
+    %% ============================================
+    %% MÓDULO DE PLANIFICACIÓN Y REGISTRO
+    %% ============================================
+    SCHEDULE --o{ COURSE_CALENDAR  defines_time
+    COURSE_CALENDAR --o{ COURSES_STUDENTS  has_enrolled
+
+    SCHEDULE {
+        int schedule_id PK
+        varchar start_time
+        varchar end_time
+        varchar day
+    }
+
+    COURSE_CALENDAR {
+        int course_calendar_id PK
+        int quota
+        int classroom_id FK NOT NULL
+        int course_id FK NOT NULL
+        int schedule_id FK NOT NULL
+    }
+
+    COURSES_STUDENTS {
+        int course_student_id PK
+        int course_calendar_course_calendar FK NOT NULL
+        int user_id FK NOT NULL
+    }
